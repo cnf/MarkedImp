@@ -31,7 +31,11 @@ def auth():
 @rest.route('/rest/page/<path:slug>', methods=['GET'])
 def page_get(slug):
     """docstring for page_get"""
-    pass
+    post = StaticPage.get_by_slug(slug)
+    return jsonify(
+            id = post.slug,
+            date = str(post.published_at),
+            content = post.content)
 
 @rest.route('/rest/post/<slug>', methods=['GET'])
 def post_get(slug):
