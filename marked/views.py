@@ -3,7 +3,7 @@ from marked import app
 from flask import render_template, request, redirect, url_for,\
                     make_response
 
-from marked.models import BlogPage, StaticPage
+from marked.models import Post, Page
 
 import os
 
@@ -24,13 +24,13 @@ def index():
 @app.route('/pages')
 def pages():
     """docstring for pages"""
-    page_list = BlogPage.get_all()
+    page_list = Post.get_all()
     return render_template('pages.html', page_list=page_list)
 
 @app.route('/page/<slug>')
 def page(slug):
     """docstring for show_page"""
-    page = BlogPage.get_by_slug(slug)
+    page = Post.get_by_slug(slug)
     response = make_response(render_template('page.html', page=page))
     response.headers['Last-Modified'] = page.updated_at.strftime('%a, %d %b %Y %H:%M:%S GMT')
     return response
@@ -38,7 +38,7 @@ def page(slug):
 @app.route('/<path:slug>')
 def static_page(slug):
     """docstring for static_page"""
-    page = StaticPage.get_by_slug(slug)
+    page = Page.get_by_slug(slug)
     if page:
         response = make_response(render_template('page.html', page=page))
         response.headers['Last-Modified'] = page.updated_at.strftime('%a, %d %b %Y %H:%M:%S GMT')

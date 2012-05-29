@@ -12,15 +12,15 @@ from unicodedata import normalize
 import re
 
 association_table = Table('page_category_assoc', Base.metadata,
-    Column('page_id', Integer, ForeignKey('pages.page_id')),
+    Column('entry_id', Integer, ForeignKey('entries.entry_id')),
     Column('category_id', Integer, ForeignKey('categories.category_id'))
 )
 
-class Page(Base):
+class Entry(Base):
     """docstring for User"""
-    __tablename__       = 'pages'
-    page_id             = Column(Integer, primary_key=True)
-    _type               = Column('type', Enum('Static', 'Blog'), default='Blog')
+    __tablename__       = 'entries'
+    entry_id            = Column(Integer, primary_key=True)
+    _type               = Column('type', Enum('Page', 'Post'), default='Post')
     title               = Column(String, unique=True)
     _slug               = Column('slug', String, unique=True, nullable=False)
     published_at        = Column(DateTime, default=datetime.now)
@@ -34,14 +34,14 @@ class Page(Base):
                             # backref="pages")
     
     def __init__(self, title, content, draft):
-            # super(Page, self).__init__()
+            # super(Entry, self).__init__()
             self.title      = title
             self.content    = content
             self.draft      = draft
     
     def __repr__(self):
         """docstring for __repr__"""
-        return "Pages<%s>" % self._slug
+        return "Entry<%s>" % self._slug
     
     @classmethod
     def get_by_slug(cls, slug):
@@ -93,24 +93,24 @@ class Page(Base):
                 result.append(word)
         return unicode(delim.join(result))
 
-class BlogPage(Page):
-    """docstring for BlogPage"""
-    _my_type           = 'Blog'
+class Post(Entry):
+    """docstring for Post"""
+    _my_type           = 'Post'
     def __init__(self, title, content, draft):
-        super(BlogPage, self).__init__(title, content, draft)
+        super(Post, self).__init__(title, content, draft)
         self._type      = self._my_type
 
-class StaticPage(Page):
-    """docstring for StaticPage"""
-    _my_type           = 'Static'
+class Page(Entry):
+    """docstring for Page"""
+    _my_type           = 'Page'
     def __init__(self, title, content, draft):
-        super(StaticPage, self).__init__(title, content, draft)
+        super(Page, self).__init__(title, content, draft)
         self._type      = self._my_type
     
     @hybrid_property
     def slug(self):
         """docstring for slug"""
-        return super(StaticPage, self).slug
+        return super(Page, self).slug
     
     @slug.setter
     def slug(self, slug):

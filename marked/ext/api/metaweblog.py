@@ -5,7 +5,7 @@ This is the metaWeblog API to marked
 """
 from flask import Blueprint, url_for
 from flaskext.xmlrpc import XMLRPCHandler, Fault
-from marked.models import BlogPage, StaticPage, Category
+from marked.models import Post, Page, Category
 
 # TODO: NO sqlalchemy outside of models
 from sqlalchemy.exc import IntegrityError
@@ -23,10 +23,10 @@ def newPost(blog_id, username, password, struct, publish):
     """docstring for newPost"""
     print '---\nrunning metaWeblog.newPost'
     if blog_id == 'Static':
-        page = StaticPage(title=struct['title'], content=struct['description'], draft=not publish)
+        page = Page(title=struct['title'], content=struct['description'], draft=not publish)
         page.slug = struct['link']
     else:
-        page = BlogPage(title=struct['title'], content=struct['description'], draft=not publish)
+        page = Post(title=struct['title'], content=struct['description'], draft=not publish)
     
     if 'categories' in struct:
         page.categories = [Category.get_by_name(cat) for cat in struct['categories']]
@@ -44,7 +44,7 @@ def newPost(blog_id, username, password, struct, publish):
 def editPost(post_id, username, password, struct, publish):
     """docstring for editPost"""
     print '---\nrunning metaWeblog.editPost'
-    page = BlogPage.get_by_slug(post_id)
+    page = Post.get_by_slug(post_id)
     page.title      = struct['title']
     page.content    = struct['description']
     page.draft      = not publish
@@ -63,7 +63,7 @@ def editPost(post_id, username, password, struct, publish):
 def getPost(post_id, username, password):
     """docstring for getPost"""
     print '---\nrunning metaWeblog.getPost'
-    return page_to_struct(BlogPage.get_by_slug(post_id))
+    return page_to_struct(Post.get_by_slug(post_id))
 
 @mwl.register
 def getCategories(blog_id, username, password):
@@ -76,9 +76,9 @@ def getRecentPosts(blog_id, username, password, numberOfPosts):
     """docstring for getRecentPosts"""
     print '---\nrunning metaWeblog.getRecentPosts'
     if blog_id == 'Static':
-        return [page_to_struct(page) for page in StaticPage.get_all(numberOfPosts)]
+        return [page_to_struct(page) for page in Page.get_all(numberOfPosts)]
     else:
-        return [page_to_struct(page) for page in BlogPage.get_all(numberOfPosts)]
+        return [page_to_struct(page) for page in Post.get_all(numberOfPosts)]
 
 @mwl.register
 def newMediaObject():
@@ -102,7 +102,7 @@ def page_to_struct(page):
 @blogger.register
 def deletePost(appKey, post_id, username, password, publish):
     """docstring for deletePost"""
-    page = BlogPage.get_by_slug(post_id)
+    page = Post.get_by_slug(post_id)
     try:
         page.delete()
     except IntegrityError:

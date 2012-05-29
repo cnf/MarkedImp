@@ -4,7 +4,7 @@ This is the REST API to marked
 http://flask.pocoo.org/snippets/45/ Handling Accept Headers
 """
 from flask import Blueprint, jsonify, request, Response
-from marked.models import BlogPage
+from marked.models import Page, Post
 
 rest = Blueprint('rest', __name__)
 
@@ -17,6 +17,11 @@ def index():
 @rest.route('/rest/auth')
 def auth():
     """docstring for auth"""
+    return jsonify( token='E053C9A4-03A3-4B68-A119-8BF30FDA5094')
+
+@rest.route('/rest/test', methods=['GET', 'POST', 'PUT', 'DELETE'])
+def test():
+    """docstring for test"""
     # TODO: return the sessions auth string
     auth = request.authorization
     if not auth:
@@ -26,7 +31,9 @@ def auth():
             {'WWW-Authenticate': 'Basic realm="Login Required"'})
     else:
         print auth.username, " ", auth.password
-        return jsonify(authstring="authstring", username=auth.username)
+        return jsonify(authstring="authstring", 
+                username=auth.username,
+                password=auth.password)
 
 @rest.route('/rest/page/<path:slug>', methods=['GET'])
 def page_get(slug):
